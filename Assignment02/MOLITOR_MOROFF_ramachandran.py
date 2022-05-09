@@ -6,7 +6,7 @@ from Bio.PDB import *
 from numpy import arccos
 
 
-class Point:
+class Vector:
     def __init__(self, x, y, z):
         self.x = x
         self.y = y
@@ -22,14 +22,24 @@ def vector_angle(v, w):
 
 def get_normal_vector(u, v, w):
 
+    # build the two direction vectors defining a plane
+    d1 = Vector(v.x - u.x, v.y - u.y, v.z - u.z)
+    d2 = Vector(w.x - u.x, w.y - u.y, w.z - u.z)
 
+    # compute the normal vector from the two direction vectors
+    a = d1.y * d2.z - d1.z * d2.y
+    b = d1.z * d2.x - d1.x * d2.z
+    c = d1.x * d2.y - d1.y * d2.x
 
+    normal_vector = Vector(a, b, c)
+
+    return normal_vector
 
 
 def parse_file(id, file):
     parser = PDBParser()
     structure = parser.get_structure(id, file)
-    print(structure.get_atoms())
+    atoms = structure.get_atoms()
 
 
 if __name__ == '__main__':
@@ -45,16 +55,14 @@ if __name__ == '__main__':
 
     #print(args.output_file)
     file_name = "/Users/friederike/Documents/Universität/Bioinformatik_Master/3_semester/structure_systems/assignments/SSBI/Assignment02/1igt.pdb"
-    # parse_file("igt", file_name)
+    parse_file("igt", file_name)
 
-    point1 = Point(1, 0, 0)
-    point2 = Point(0, 1, 0)
-    point3 = Point(0, 0, 1)
+    p1 = Vector(1, 0, 0)
+    p2 = Vector(0, 1, 0)
+    p3 = Vector(0, 0, 1)
 
 
+    angle = vector_angle(p1, p2)
 
-    print(math.degrees(math.acos(0)))
-
-    angle = vector_angle(point1, point2)
-    print(angle)
+    get_normal_vector(p1, p2, p3)
 
