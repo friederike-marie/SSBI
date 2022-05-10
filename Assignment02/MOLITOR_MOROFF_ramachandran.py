@@ -39,27 +39,35 @@ def get_normal_vector(u, v, w):
 def parse_file(id, file):
     parser = PDBParser()
     structure = parser.get_structure(id, file)
-    print(structure.header.keys())
-    print(structure.header["deposition_date"])
-    print(structure.header["resolution"])
 
+    return structure
+
+
+def extract_coordinates(structure):
+    all_atoms = []
 
     model = structure.get_models()
     models = list(model)
-    print(models)
 
-    chain = models[0].get_chains()
-    chains = list(chain)
-    print(chains)
+    for model in models:
+        chain = model.get_chains()
+        chains = list(chain)
 
-    residue = chains[0].get_residues()
-    residues = list(residue)
-    print(residues)
+        for chain in chains:
+            residue = chain.get_residues()
+            residues = list(residue)
 
-    atom = residues[0].get_atoms()
-    atoms = list(atom)
-    print(atoms)
-    print(atoms[0].coord)
+            for residue in residues:
+                atom = residue.get_atoms()
+                atoms = list(atom)
+                all_atoms.append(atoms)
+
+    for atoms in all_atoms:
+        for i in range(0, len(atoms)):
+            atom = atoms[i]
+            print(atom.fullname)
+            print(atom.coord)
+
 
 
 def plot_ramachandran (phi, psi):
@@ -89,8 +97,10 @@ if __name__ == '__main__':
     #    print(f)
 
     #print(args.output_file)
+
     file_name = "/Users/friederike/Documents/Universität/Bioinformatik_Master/3_semester/structure_systems/assignments/SSBI/Assignment02/1igt.pdb"
-    parse_file("igt", file_name)
+    structure = parse_file("igt", file_name)
+    extract_coordinates(structure)
 
     p1 = Vector(1, 0, 0)
     p2 = Vector(0, 1, 0)
