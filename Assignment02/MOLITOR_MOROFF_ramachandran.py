@@ -20,7 +20,13 @@ class Atom:
 
 
 def vector_angle(v, w):
-    x = (v.x * w.x + v.y * w.y + v.z * w.z) / (math.sqrt(v.x ** 2 + v.y ** 2 + v.z ** 2) * math.sqrt(w.x ** 2 + w.y ** 2 + w.z ** 2))
+    # x = (v.x * w.x + v.y * w.y + v.z * w.z) / (math.sqrt(v.x ** 2 + v.y ** 2 + v.z ** 2) * math.sqrt(w.x ** 2 + w.y ** 2 + w.z ** 2))
+
+    a = (v.x * w.x + v.y * w.y + v.z * w.z)
+    b = math.sqrt(v.x ** 2 + v.y ** 2 + v.z ** 2)
+    c = math.sqrt(w.x ** 2 + w.y ** 2 + w.z ** 2)
+    x = a / (b * c)
+
 
     angle_degree = math.degrees(math.acos(x))
 
@@ -91,7 +97,8 @@ def compute_psi(atoms):
                     second_vector = get_normal_vector(ca.vector, c.vector, second_n.vector)
 
                     vector_angle(first_vector, second_vector)
-                    x = 0
+
+    x = 0
 
 
 def compute_phi(atoms):
@@ -142,14 +149,14 @@ if __name__ == '__main__':
     structure = parse_file("igt", file_name)
     all_atoms = extract_coordinates(structure)
 
-    compute_phi(all_atoms)
+    # compute_phi(all_atoms)
     compute_psi(all_atoms)
 
-    #p1 = Vector(1,2,3)
-    #p2 = Vector(4,5,6)
+    p1 = Vector(1,2,3)
+    p2 = Vector(4,5,6)
 
-    #angle = vector_angle(p1, p2)
-    #print(angle)
+    angle = vector_angle(p1, p2)
+    print(angle)
     # get_normal_vector(p1, p2, p3)
 
 
