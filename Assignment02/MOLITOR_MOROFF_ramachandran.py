@@ -3,8 +3,8 @@ import argparse
 import math
 
 from Bio.PDB import *
-from numpy import arccos
-
+import matplotlib.pyplot as plt
+import numpy as mp
 
 class Vector:
     def __init__(self, x, y, z):
@@ -15,9 +15,9 @@ class Vector:
 
 def vector_angle(v, w):
     x = (v.x * w.x + v.y * w.y + v.z * w.z) / (math.sqrt(v.x ** 2 + v.y ** 2 + v.z ** 2) + math.sqrt(w.x ** 2 + w.y ** 2 + w.z ** 2))
-    angle = math.degrees(math.acos(x))
+    angle_degree = math.degrees(math.acos(x))
 
-    return angle
+    return angle_degree
 
 
 def get_normal_vector(u, v, w):
@@ -39,7 +39,29 @@ def get_normal_vector(u, v, w):
 def parse_file(id, file):
     parser = PDBParser()
     structure = parser.get_structure(id, file)
-    atoms = structure.get_atoms()
+    print(structure.header.keys())
+    print(structure.header["deposition_date"])
+    print(structure.header["resolution"])
+
+    model = structure.get_models()
+    models = list(model)
+    print(models)
+
+    chain = models[0].get_chains()
+    chains = list(chain)
+    print(chains)
+
+    residue = chains[0].get_residues()
+    residues = list(residue)
+    print(residues)
+
+    atom = residues[0].get_atoms()
+    atoms = list(atom)
+    print(atoms)
+    print(atoms[0].coord)
+
+
+
 
 
 if __name__ == '__main__':
