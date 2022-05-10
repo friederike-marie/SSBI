@@ -13,6 +13,14 @@ class Vector:
         self.z = z
 
 
+class Atom:
+    def __init__(self, name, x, y, z):
+        self.name = name
+        self.x = x
+        self.y = y
+        self.z = z
+
+
 def vector_angle(v, w):
     x = (v.x * w.x + v.y * w.y + v.z * w.z) / (math.sqrt(v.x ** 2 + v.y ** 2 + v.z ** 2) + math.sqrt(w.x ** 2 + w.y ** 2 + w.z ** 2))
     angle_degree = math.degrees(math.acos(x))
@@ -60,14 +68,13 @@ def extract_coordinates(structure):
             for residue in residues:
                 atom = residue.get_atoms()
                 atoms = list(atom)
-                all_atoms.append(atoms)
 
-    for atoms in all_atoms:
-        for i in range(0, len(atoms)):
-            atom = atoms[i]
-            print(atom.fullname)
-            print(atom.coord)
+                for i in range(0, len(atoms)):
+                    atom = atoms[i]
+                    new_atom = Atom(atom.fullname, atom.coord[0], atom.coord[1], atom.coord[2])
+                    all_atoms.append(new_atom)
 
+    return all_atoms
 
 
 def plot_ramachandran (phi, psi):
