@@ -79,23 +79,35 @@ def extract_coordinates(structure):
 def compute_psi(atoms):
 
     for i in range(0, len(atoms)):
-        if (atoms[i].name.strip() == "N"):
+        if (atoms[i].name.strip() == "N" and atoms[i + 1].name.strip() == "CA" and atoms[i + 2].name.strip() == "C"):
             first_n = atoms[i]
+            ca = atoms[i + 1]
+            c = atoms[i + 2]
             for i in range(i + 1, len(atoms)):
-                if (atoms[i].name.strip() == "N" and atoms[i +1].name.strip() == "CA" and atoms[i +2].name.strip() == "C"):
+                if (atoms[i].name.strip() == "N"):
                     second_n = atoms[i]
-                    ca = atoms[i +1]
-                    c = atoms[i +2]
 
-                    first_vector = get_normal_vector(first_n.vector, second_n.vector, ca.vector)
-                    second_vector = get_normal_vector(second_n.vector, ca.vector, c.vector)
+                    first_vector = get_normal_vector(first_n.vector, ca.vector, c.vector)
+                    second_vector = get_normal_vector(ca.vector, c.vector, second_n.vector)
 
                     vector_angle(first_vector, second_vector)
                     x = 0
 
 
 def compute_phi(atoms):
-    return 0
+    for i in range(0, len(atoms)):
+        if (atoms[i].name.strip() == "C"):
+            first_c = atoms[i]
+            for i in range(i + 1, len(atoms)):
+                if (atoms[i].name.strip() == "N" and atoms[i + 1].name.strip() == "CA" and atoms[i + 2].name.strip() == "C"):
+                    n = atoms[i]
+                    ca = atoms[i + 1]
+                    second_c = atoms[i + 2]
+
+                    first_vector = get_normal_vector(first_c.vector, n.vector, ca.vector)
+                    second_vector = get_normal_vector(n.vector, ca.vector, second_c.vector)
+
+                    vector_angle(first_vector, second_vector)
 
 
 def plot_ramachandran (phi, psi):
@@ -130,6 +142,7 @@ if __name__ == '__main__':
     structure = parse_file("igt", file_name)
     all_atoms = extract_coordinates(structure)
 
+    compute_phi(all_atoms)
     compute_psi(all_atoms)
 
     #p1 = Vector(1,2,3)
