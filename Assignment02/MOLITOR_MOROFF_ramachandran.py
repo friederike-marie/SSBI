@@ -4,7 +4,7 @@ import math
 
 from Bio.PDB import *
 import matplotlib.pyplot as plt
-import numpy as mp
+import numpy as np
 
 class Vector:
     def __init__(self, x, y, z):
@@ -43,6 +43,7 @@ def parse_file(id, file):
     print(structure.header["deposition_date"])
     print(structure.header["resolution"])
 
+
     model = structure.get_models()
     models = list(model)
     print(models)
@@ -59,6 +60,18 @@ def parse_file(id, file):
     atoms = list(atom)
     print(atoms)
     print(atoms[0].coord)
+
+
+def plot_ramachandran (phi, psi):
+
+    fig, ax = plt.subplots()
+
+    ax.scatter(phi, psi)
+    ax.set(xlim = (-180,180),
+           ylim = (-180,180))
+    plt.hlines(y = 0, xmin = -180, xmax = 180, colors= "grey")
+    plt.vlines(x = 0, ymin = -180, ymax = 180, colors= "grey")
+    plt.show()
 
 
 
@@ -87,4 +100,5 @@ if __name__ == '__main__':
     angle = vector_angle(p1, p2)
 
     get_normal_vector(p1, p2, p3)
+
 
