@@ -14,15 +14,14 @@ class Vector:
 
 
 class Atom:
-    def __init__(self, name, x, y, z):
+    def __init__(self, name, vector):
         self.name = name
-        self.x = x
-        self.y = y
-        self.z = z
+        self.vector = vector
 
 
 def vector_angle(v, w):
-    x = (v.x * w.x + v.y * w.y + v.z * w.z) / (math.sqrt(v.x ** 2 + v.y ** 2 + v.z ** 2) + math.sqrt(w.x ** 2 + w.y ** 2 + w.z ** 2))
+    x = (v.x * w.x + v.y * w.y + v.z * w.z) / (math.sqrt(v.x ** 2 + v.y ** 2 + v.z ** 2) * math.sqrt(w.x ** 2 + w.y ** 2 + w.z ** 2))
+
     angle_degree = math.degrees(math.acos(x))
 
     return angle_degree
@@ -71,10 +70,32 @@ def extract_coordinates(structure):
 
                 for i in range(0, len(atoms)):
                     atom = atoms[i]
-                    new_atom = Atom(atom.fullname, atom.coord[0], atom.coord[1], atom.coord[2])
+                    new_atom = Atom(atom.fullname, Vector(atom.coord[0], atom.coord[1], atom.coord[2]))
                     all_atoms.append(new_atom)
 
     return all_atoms
+
+
+def compute_psi(atoms):
+
+    for i in range(0, len(atoms)):
+        if (atoms[i].name.strip() == "N"):
+            first_n = atoms[i]
+            for i in range(i + 1, len(atoms)):
+                if (atoms[i].name.strip() == "N" and atoms[i +1].name.strip() == "CA" and atoms[i +2].name.strip() == "C"):
+                    second_n = atoms[i]
+                    ca = atoms[i +1]
+                    c = atoms[i +2]
+
+                    first_vector = get_normal_vector(first_n.vector, second_n.vector, ca.vector)
+                    second_vector = get_normal_vector(second_n.vector, ca.vector, c.vector)
+
+                    vector_angle(first_vector, second_vector)
+                    x = 0
+
+
+def compute_phi(atoms):
+    return 0
 
 
 def plot_ramachandran (phi, psi):
@@ -107,15 +128,15 @@ if __name__ == '__main__':
 
     file_name = "/Users/friederike/Documents/Universität/Bioinformatik_Master/3_semester/structure_systems/assignments/SSBI/Assignment02/1igt.pdb"
     structure = parse_file("igt", file_name)
-    extract_coordinates(structure)
+    all_atoms = extract_coordinates(structure)
 
-    p1 = Vector(1, 0, 0)
-    p2 = Vector(0, 1, 0)
-    p3 = Vector(0, 0, 1)
+    compute_psi(all_atoms)
 
+    #p1 = Vector(1,2,3)
+    #p2 = Vector(4,5,6)
 
-    angle = vector_angle(p1, p2)
-
-    get_normal_vector(p1, p2, p3)
+    #angle = vector_angle(p1, p2)
+    #print(angle)
+    # get_normal_vector(p1, p2, p3)
 
 
