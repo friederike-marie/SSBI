@@ -2,9 +2,8 @@
 import argparse
 import math
 
-import numpy as np
-from Bio.PDB import *
 import matplotlib.pyplot as plt
+from Bio.PDB import *
 from matplotlib.backends.backend_pdf import PdfPages
 
 

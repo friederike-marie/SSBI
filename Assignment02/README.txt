@@ -6,5 +6,4 @@ Requires path to input file:
 -o OUTPUT_FILE, --OUTPUT_FILE OUTPUT_FILE
 
 Example how to run code:
-python3 .\MOLITOR_MOROFF_ramachandran.py -i .\1mbn.pdb -o .\ramachandran.pdf
 python3 .\MOLITOR_MOROFF_ramachandran.py -i .\2hik.pdb .\5ire.pdb .\1igt.pdb -o .\ramachandran.pdf
