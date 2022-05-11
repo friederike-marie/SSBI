@@ -101,7 +101,9 @@ def compute_psi(atoms):
             first_n = atoms[i]
             ca = atoms[i + 1]
             c = atoms[i + 2]
-            for i in range(i + 1, len(atoms)):
+
+            while i < (len(atoms) - 1):
+                i += 1
                 if atoms[i].name.strip() == "N":
                     second_n = atoms[i]
 
@@ -115,6 +117,7 @@ def compute_psi(atoms):
                     if not clockwise(first_vector, first_n.vector, second_n.vector):
                         angle = -angle
                     all_psi.append(angle)
+                    break
 
     return all_psi
 
@@ -125,31 +128,13 @@ def compute_phi(atoms):
     for i in range(0, len(atoms)):
         if atoms[i].name.strip() == "C":
             first_c = atoms[i]
-            for i in range(i + 1, len(atoms)):
+
+            while i < (len(atoms)-1) and atoms[i + 1].name.strip() != "C":
+
                 if atoms[i].name.strip() == "N" and atoms[i + 1].name.strip() == "CA" and atoms[i + 2].name.strip() == "C":
                     n = atoms[i]
                     ca = atoms[i + 1]
                     second_c = atoms[i + 2]
-
-                    print(first_c.name)
-                    print(str(first_c.vector.x))
-                    print(str(first_c.vector.y))
-                    print(str(first_c.vector.z))
-
-                    print(n.name)
-                    print(str(n.vector.x))
-                    print(str(n.vector.y))
-                    print(str(n.vector.z))
-
-                    print(ca.name)
-                    print(str(ca.vector.x))
-                    print(str(ca.vector.y))
-                    print(str(ca.vector.z))
-
-                    print(second_c.name)
-                    print(str(second_c.vector.x))
-                    print(str(second_c.vector.y))
-                    print(str(second_c.vector.z))
 
                     # builds a normal for the pane describing C, N, Ca
                     first_vector = get_normal(first_c.vector, n.vector, ca.vector)
@@ -161,6 +146,7 @@ def compute_phi(atoms):
                     if not clockwise(first_vector, first_c.vector, second_c.vector):
                         angle = -angle
                     all_phi.append(angle)
+                i += 1
 
     return all_phi
 
@@ -178,7 +164,7 @@ def compute_all_angles(structure):
         chain = model.get_chains()
         chains = list(chain)
 
-        # extracs for all chains all atoms an computes the phi and psi angle
+        # extracts for all chains all atoms an computes the phi and psi angle
         for chain in chains:
             atoms = extract_coordinates(chain)
             phi = compute_phi(atoms)
@@ -192,33 +178,28 @@ def compute_all_angles(structure):
     plt3 = plot_ramachandran(all_phi[0:8000], all_psi[0:8000])
     plt4 = plot_ramachandran(all_phi, all_psi)
 
-    # output_file = PdfPages('1mbn.pdf')
-    # output_file.savefig(plt1)
-    # output_file.savefig(plt2)
-    # output_file.savefig(plt3)
-    # output_file.savefig(plt4)
-    # output_file.close()
+    output_file = PdfPages('1mbn.pdf')
+    output_file.savefig(plt1)
+    output_file.savefig(plt2)
+    output_file.savefig(plt3)
+    output_file.savefig(plt4)
+    output_file.close()
 
 
 # plots list of given phi and psi angles
 def plot_ramachandran(phi, psi):
-    heatmap, xedges, yedges = np.histogram2d(phi, psi, bins = 50)
-    extent = [xedges[0], xedges[-1], yedges[0], yedges[-1]]
-    plt.clf()
-    plt.imshow(heatmap.T, extent=extent, origin='lower')
-    plt.show()
 
-    #fig, ax = plt.subplots()
+    fig, ax = plt.subplots()
 
-    #ax.scatter(phi, psi, s=0.5, color="black")
-    #ax.set(xlim=(-180, 180),
-     #      ylim=(-180, 180))
-    #plt.hlines(y=0, xmin=-180, xmax=180, colors="grey")
-    #plt.vlines(x=0, ymin=-180, ymax=180, colors="grey")
-    #plt.xlabel("phi")
-    #plt.ylabel("psi")
+    ax.scatter(phi, psi, s=0.5, color="black")
+    ax.set(xlim=(-180, 180),
+           ylim=(-180, 180))
+    plt.hlines(y=0, xmin=-180, xmax=180, colors="grey")
+    plt.vlines(x=0, ymin=-180, ymax=180, colors="grey")
+    plt.xlabel("phi")
+    plt.ylabel("psi")
 
-    return heatmap
+    return fig
 
 
 # checks if the argument for the output file name ends with .pdf
@@ -232,13 +213,15 @@ def pdf_validator(astring):
 
 if __name__ == '__main__':
     # parsing input
-    # parser = argparse.ArgumentParser()
-    # parser.add_argument('-i', '--INPUT_File', type=argparse.FileType('r'), nargs='+')
-    # parser.add_argument('-o', '--OUTPUT_FILE', type=pdf_validator)
-    # args = parser.parse_args()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-i', '--input_file', type=argparse.FileType('r'), nargs='+')
+    parser.add_argument('-o', '--output_file', type=pdf_validator)
+    args = parser.parse_args()
+    x = 0
 
-    # for f in args.INPUT_FILE:
-    # for all files!
+    for f in args.input_file:
+        file_name = f.name
+        structure = parse_file(f.name)
 
     file_name = "/Users/friederike/Documents/Universität/Bioinformatik_Master/3_semester/structure_systems/assignments/SSBI/Assignment02/2hik.pdb"
     structure = parse_file("igt", file_name)
