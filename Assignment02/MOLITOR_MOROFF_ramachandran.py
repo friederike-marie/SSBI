@@ -26,21 +26,17 @@ def vector_angle(v, w):
     c = math.sqrt(w.x ** 2 + w.y ** 2 + w.z ** 2)
     x = a / (b * c)
 
-    if (x > 1):
-        # print(str(x) + "too large value")
+    if x > 1:
         x = 1
-    if (x < -1):
-        # print(str(x) + "too low value")
+    if x < -1:
         x = -1
 
     angle_degree = math.degrees(math.acos(x))
-    # print(angle_degree)
 
     return angle_degree
 
 
 def get_normal_vector(u, v, w):
-
     # build the two direction vectors defining a plane
     d1 = Vector(v.x - u.x, v.y - u.y, v.z - u.z)
     d2 = Vector(w.x - u.x, w.y - u.y, w.z - u.z)
@@ -55,7 +51,7 @@ def get_normal_vector(u, v, w):
     return normal_vector
 
 
-def clockwise (n, s, p):
+def clockwise(n, s, p):
     a = (n.x * p.x + n.y * p.y + n.z * p.z) - (s.x * n.x + s.y * n.y + s.z * n.z)
     b = math.sqrt(n.x ** 2 + n.y ** 2 + n.z ** 2)
     x = a / b
@@ -70,42 +66,34 @@ def parse_file(id, file):
     return structure
 
 
-def extract_coordinates(structure):
+def extract_coordinates(chain):
     all_atoms = []
 
-    model = structure.get_models()
-    models = list(model)
+    residue = chain.get_residues()
+    residues = list(residue)
 
-    for model in models:
-        chain = model.get_chains()
-        chains = list(chain)
+    for residue in residues:
+        atom = residue.get_atoms()
+        atoms = list(atom)
 
-        for chain in chains:
-            residue = chain.get_residues()
-            residues = list(residue)
-
-            for residue in residues:
-                atom = residue.get_atoms()
-                atoms = list(atom)
-
-                for i in range(0, len(atoms)):
-                    atom = atoms[i]
-                    new_atom = Atom(atom.fullname, Vector(atom.coord[0], atom.coord[1], atom.coord[2]))
-                    all_atoms.append(new_atom)
-    print(str(len(all_atoms)))
+        for i in range(0, len(atoms)):
+            atom = atoms[i]
+            new_atom = Atom(atom.fullname, Vector(atom.coord[0], atom.coord[1], atom.coord[2]))
+            all_atoms.append(new_atom)
 
     return all_atoms
+
 
 # computes the psi angle by computing the angle of the normal vector from two panes
 def compute_psi(atoms):
     all_psi = []
     for i in range(0, len(atoms)):
-        if (atoms[i].name.strip() == "N" and atoms[i + 1].name.strip() == "CA" and atoms[i + 2].name.strip() == "C"):
+        if atoms[i].name.strip() == "N" and atoms[i + 1].name.strip() == "CA" and atoms[i + 2].name.strip() == "C":
             first_n = atoms[i]
             ca = atoms[i + 1]
             c = atoms[i + 2]
             for i in range(i + 1, len(atoms)):
-                if (atoms[i].name.strip() == "N"):
+                if atoms[i].name.strip() == "N":
                     second_n = atoms[i]
 
                     first_vector = get_normal_vector(first_n.vector, ca.vector, c.vector)
@@ -121,14 +109,15 @@ def compute_psi(atoms):
 
     return all_psi
 
+
 # computes the phi angle by computing the angle of the normal vector from two panes
 def compute_phi(atoms):
     all_phi = []
     for i in range(0, len(atoms)):
-        if (atoms[i].name.strip() == "C"):
+        if atoms[i].name.strip() == "C":
             first_c = atoms[i]
             for i in range(i + 1, len(atoms)):
-                if (atoms[i].name.strip() == "N" and atoms[i + 1].name.strip() == "CA" and atoms[i + 2].name.strip() == "C"):
+                if atoms[i].name.strip() == "N" and atoms[i + 1].name.strip() == "CA" and atoms[i + 2].name.strip() == "C":
                     n = atoms[i]
                     ca = atoms[i + 1]
                     second_c = atoms[i + 2]
@@ -145,49 +134,9 @@ def compute_phi(atoms):
     return all_phi
 
 
-# plots list of given phi and psi angles
-def plot_ramachandran (phi, psi):
-
-    fig, ax = plt.subplots()
-
-    ax.scatter(phi, psi, s = 0.5, color = "black")
-    ax.set(xlim = (-180,180),
-           ylim = (-180,180))
-    plt.hlines(y = 0, xmin = -180, xmax = 180, colors= "grey")
-    plt.vlines(x = 0, ymin = -180, ymax = 180, colors= "grey")
-    plt.show()
-
-    return fig
-
-
-if __name__ == '__main__':
-    # parsing input
-    # parser = argparse.ArgumentParser()
-    # parser.add_argument('-i', '--input_file', type=argparse.FileType('r'), nargs='+')
-    # parser.add_argument('-o', '--output_file', type=str)
-
-    # args = parser.parse_args()
-
-    # for f in args.input_file:
-      #  structure = parse_file("igt", f.name)
-       # all_atoms = extract_coordinates(structure)
-
-
-    file_name = "/Users/friederike/Documents/Universität/Bioinformatik_Master/3_semester/structure_systems/assignments/SSBI/Assignment02/1igt.pdb"
-    structure = parse_file("igt", file_name)
-    all_atoms = extract_coordinates(structure)
-
-    # test for angel and vector ----------------
-    n = Vector(4, 8, -19)
-    s = Vector(1, 1, -1)
-    p = Vector(8, -5, 2)
-
-    # x = clockwise(n, s, p)
-    # print(x)
-
-    # angle = vector_angle(p1, p2)
-    # print(angle)
-    # get_normal_vector(p1, p2, p3)
+def compute_all_angles(structure):
+    all_phi = []
+    all_psi = []
 
     model = structure.get_models()
     models = list(model)
@@ -195,11 +144,64 @@ if __name__ == '__main__':
     for model in models:
         chain = model.get_chains()
         chains = list(chain)
-    print(str(len(chains)))
 
-    all_phi = compute_phi(all_atoms)
-    all_psi = compute_psi(all_atoms)
+        for chain in chains:
+            atoms = extract_coordinates(chain)
+            phi = compute_phi(atoms)
+            psi = compute_psi(atoms)
+            if phi:
+                all_phi.extend(phi)
+                all_psi.extend(psi)
+    print(len(all_phi))
+    print(len(all_psi))
+
     plot_ramachandran(all_phi[0:500], all_psi[0:500])
+    plot_ramachandran(all_phi[0:1000], all_psi[0:1000])
+    plot_ramachandran(all_phi[0:2000], all_psi[0:2000])
+    plot_ramachandran(all_phi[0:4000], all_psi[0:4000])
+    plot_ramachandran(all_phi[0:8000], all_psi[0:8000])
+    plot_ramachandran(all_phi, all_psi)
+
+
+# plots list of given phi and psi angles
+def plot_ramachandran(phi, psi):
+    fig, ax = plt.subplots()
+
+    ax.scatter(phi, psi, s=0.5, color="black")
+    ax.set(xlim=(-180, 180),
+           ylim=(-180, 180))
+    plt.hlines(y=0, xmin=-180, xmax=180, colors="grey")
+    plt.vlines(x=0, ymin=-180, ymax=180, colors="grey")
+    plt.xlabel("phi")
+    plt.ylabel("psi")
+    plt.show()
+
+    return fig
+
+
+def pdf_validator(astring):
+    if not isinstance(astring, str):
+        raise ValueError
+    if not astring.endswith(".pdf"):
+        raise ValueError
+    return astring
+
+
+if __name__ == '__main__':
+    # parsing input
+    # parser = argparse.ArgumentParser()
+    # parser.add_argument('-i', '--input_file', type=argparse.FileType('r'), nargs='+')
+    # parser.add_argument('-o', '--output_file', type=pdf_validator)
+    # args = parser.parse_args()
+
+    # for f in args.input_file:
+    # for all files!
+
+    file_name = "/Users/friederike/Documents/Universität/Bioinformatik_Master/3_semester/structure_systems/assignments/SSBI/Assignment02/1igt.pdb"
+    structure = parse_file("igt", file_name)
+
+    compute_all_angles(structure)
+
 
     # output file -------------------------
     # p3 = [1,2,3]
@@ -212,6 +214,3 @@ if __name__ == '__main__':
     # output_file.savefig(plt1)
     # output_file.savefig(plt2)
     # output_file.close()
-
-
-
