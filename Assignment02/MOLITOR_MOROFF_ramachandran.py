@@ -4,7 +4,8 @@ import math
 
 from Bio.PDB import *
 import matplotlib.pyplot as plt
-import numpy as np
+from matplotlib.backends.backend_pdf import PdfPages
+
 
 class Vector:
     def __init__(self, x, y, z):
@@ -20,15 +21,13 @@ class Atom:
 
 
 def vector_angle(v, w):
-    # x = (v.x * w.x + v.y * w.y + v.z * w.z) / (math.sqrt(v.x ** 2 + v.y ** 2 + v.z ** 2) * math.sqrt(w.x ** 2 + w.y ** 2 + w.z ** 2))
-
     a = (v.x * w.x + v.y * w.y + v.z * w.z)
     b = math.sqrt(v.x ** 2 + v.y ** 2 + v.z ** 2)
     c = math.sqrt(w.x ** 2 + w.y ** 2 + w.z ** 2)
     x = a / (b * c)
 
-
     angle_degree = math.degrees(math.acos(x))
+    print(angle_degree)
 
     return angle_degree
 
@@ -126,34 +125,50 @@ def plot_ramachandran (phi, psi):
            ylim = (-180,180))
     plt.hlines(y = 0, xmin = -180, xmax = 180, colors= "grey")
     plt.vlines(x = 0, ymin = -180, ymax = 180, colors= "grey")
-    plt.show()
+    #plt.show()
+
+    return fig
 
 
 
 
 
 if __name__ == '__main__':
-    ## parsing input
-    #parser = argparse.ArgumentParser()
-    #parser.add_argument('-i', '--input_file', type=argparse.FileType('r'), nargs='+')
-    #parser.add_argument('-o', '--output_file', type=str) # .pdf!!
+    # parsing input
+    # parser = argparse.ArgumentParser()
+    # parser.add_argument('-i', '--input_file', type=argparse.FileType('r'), nargs='+')
+    # parser.add_argument('-o', '--output_file', type=str)
 
-    #args = parser.parse_args()
+    # args = parser.parse_args()
 
-    #for f in args.input_file:
-    #    print(f)
+    # for f in args.input_file:
+      #  structure = parse_file("igt", f.name)  #  xxx fixme
+       # all_atoms = extract_coordinates(structure)
 
-    #print(args.output_file)
+
+
 
     file_name = "/Users/friederike/Documents/Universität/Bioinformatik_Master/3_semester/structure_systems/assignments/SSBI/Assignment02/1igt.pdb"
     structure = parse_file("igt", file_name)
     all_atoms = extract_coordinates(structure)
 
     # compute_phi(all_atoms)
-    compute_psi(all_atoms)
+    # compute_psi(all_atoms)
 
     p1 = Vector(1,2,3)
     p2 = Vector(4,5,6)
+
+    # output file ------
+    # p3 = [1,2,3]
+    # p4 = [4,5,6]
+
+    # plt1 = plot_ramachandran(p3, p4)
+    # plt2 = plot_ramachandran(p3, p4)
+
+    # output_file = PdfPages('output.pdf')
+    # output_file.savefig(plt1)
+    # output_file.savefig(plt2)
+    # output_file.close()
 
     angle = vector_angle(p1, p2)
     print(angle)
