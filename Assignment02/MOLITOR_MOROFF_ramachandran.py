@@ -114,7 +114,6 @@ def compute_psi(atoms):
                     angle = vector_angle(first_vector, second_vector)
                     if not clockwise(first_vector, first_n.vector, second_n.vector):
                         angle = -angle
-                    print(angle)  # xxxx fixme
                     all_psi.append(angle)
 
     return all_psi
@@ -132,6 +131,26 @@ def compute_phi(atoms):
                     ca = atoms[i + 1]
                     second_c = atoms[i + 2]
 
+                    print(first_c.name)
+                    print(str(first_c.vector.x))
+                    print(str(first_c.vector.y))
+                    print(str(first_c.vector.z))
+
+                    print(n.name)
+                    print(str(n.vector.x))
+                    print(str(n.vector.y))
+                    print(str(n.vector.z))
+
+                    print(ca.name)
+                    print(str(ca.vector.x))
+                    print(str(ca.vector.y))
+                    print(str(ca.vector.z))
+
+                    print(second_c.name)
+                    print(str(second_c.vector.x))
+                    print(str(second_c.vector.y))
+                    print(str(second_c.vector.z))
+
                     # builds a normal for the pane describing C, N, Ca
                     first_vector = get_normal(first_c.vector, n.vector, ca.vector)
                     # builds a normal for the pane describing N, Ca, C
@@ -141,7 +160,6 @@ def compute_phi(atoms):
                     angle = vector_angle(first_vector, second_vector)
                     if not clockwise(first_vector, first_c.vector, second_c.vector):
                         angle = -angle
-                    print(angle)  # xxxx fixme
                     all_phi.append(angle)
 
     return all_phi
@@ -155,10 +173,12 @@ def compute_all_angles(structure):
     model = structure.get_models()
     models = list(model)
 
+    # gets all chains of a model
     for model in models:
         chain = model.get_chains()
         chains = list(chain)
 
+        # extracs for all chains all atoms an computes the phi and psi angle
         for chain in chains:
             atoms = extract_coordinates(chain)
             phi = compute_phi(atoms)
@@ -220,7 +240,7 @@ if __name__ == '__main__':
     # for f in args.INPUT_FILE:
     # for all files!
 
-    file_name = "/Users/friederike/Documents/Universität/Bioinformatik_Master/3_semester/structure_systems/assignments/SSBI/Assignment02/1mbn.pdb"
+    file_name = "/Users/friederike/Documents/Universität/Bioinformatik_Master/3_semester/structure_systems/assignments/SSBI/Assignment02/2hik.pdb"
     structure = parse_file("igt", file_name)
 
     compute_all_angles(structure)
