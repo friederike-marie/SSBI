@@ -151,7 +151,7 @@ def compute_phi(atoms):
     return all_phi
 
 
-# computes all torsion angles of a given structure
+# computes all torsion angles of a given structure and returns the ramachandran plot
 def compute_all_angles(structure):
     all_phi = []
     all_psi = []
@@ -173,17 +173,9 @@ def compute_all_angles(structure):
                 all_phi.extend(phi)
                 all_psi.extend(psi)
 
-    plt1 = plot_ramachandran(all_phi[0:500], all_psi[0:500])
-    plt2 = plot_ramachandran(all_phi[0:4000], all_psi[0:4000])
-    plt3 = plot_ramachandran(all_phi[0:8000], all_psi[0:8000])
-    plt4 = plot_ramachandran(all_phi, all_psi)
+    fig = plot_ramachandran(all_phi, all_psi)
 
-    output_file = PdfPages('1mbn.pdf')
-    output_file.savefig(plt1)
-    output_file.savefig(plt2)
-    output_file.savefig(plt3)
-    output_file.savefig(plt4)
-    output_file.close()
+    return fig
 
 
 # plots list of given phi and psi angles
@@ -217,26 +209,13 @@ if __name__ == '__main__':
     parser.add_argument('-i', '--input_file', type=argparse.FileType('r'), nargs='+')
     parser.add_argument('-o', '--output_file', type=pdf_validator)
     args = parser.parse_args()
-    x = 0
+
+    output_file = PdfPages(args.output_file)
 
     for f in args.input_file:
         file_name = f.name
-        structure = parse_file(f.name)
+        structure = parse_file(file_name[-8:-4], file_name)
+        fig = compute_all_angles(structure)
+        output_file.savefig(fig)
+    output_file.close()
 
-    file_name = "/Users/friederike/Documents/Universität/Bioinformatik_Master/3_semester/structure_systems/assignments/SSBI/Assignment02/2hik.pdb"
-    structure = parse_file("igt", file_name)
-
-    compute_all_angles(structure)
-
-
-    # output file -------------------------
-    # p3 = [1,2,3]
-    # p4 = [4,5,6]
-
-    # plt1 = plot_ramachandran(p3, p4)
-    # plt2 = plot_ramachandran(p3, p4)
-
-    # output_file = PdfPages('output.pdf')
-    # output_file.savefig(plt1)
-    # output_file.savefig(plt2)
-    # output_file.close()
