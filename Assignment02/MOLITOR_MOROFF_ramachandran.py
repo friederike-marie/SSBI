@@ -2,6 +2,7 @@
 import argparse
 import math
 
+import numpy as np
 from Bio.PDB import *
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
@@ -20,6 +21,7 @@ class Atom:
         self.vector = vector
 
 
+# computes the angle between two vectors
 def vector_angle(v, w):
     a = (v.x * w.x + v.y * w.y + v.z * w.z)
     b = math.sqrt(v.x ** 2 + v.y ** 2 + v.z ** 2)
@@ -36,21 +38,23 @@ def vector_angle(v, w):
     return angle_degree
 
 
-def get_normal_vector(u, v, w):
+# computes the normal of a pane given three point of it
+def get_normal(u, v, w):
     # build the two direction vectors defining a plane
     d1 = Vector(v.x - u.x, v.y - u.y, v.z - u.z)
     d2 = Vector(w.x - u.x, w.y - u.y, w.z - u.z)
 
-    # compute the normal vector from the two direction vectors
+    # compute the normal from the two direction vectors
     a = d1.y * d2.z - d1.z * d2.y
     b = d1.z * d2.x - d1.x * d2.z
     c = d1.x * d2.y - d1.y * d2.x
 
-    normal_vector = Vector(a, b, c)
+    normal = Vector(a, b, c)
 
-    return normal_vector
+    return normal
 
 
+# checks if a point is on the same side of the pane as it's normal
 def clockwise(n, s, p):
     a = (n.x * p.x + n.y * p.y + n.z * p.z) - (s.x * n.x + s.y * n.y + s.z * n.z)
     b = math.sqrt(n.x ** 2 + n.y ** 2 + n.z ** 2)
@@ -59,6 +63,7 @@ def clockwise(n, s, p):
     return x >= 0
 
 
+# parses the file and returns the structure
 def parse_file(id, file):
     parser = PDBParser()
     structure = parser.get_structure(id, file)
@@ -66,16 +71,20 @@ def parse_file(id, file):
     return structure
 
 
+# extracts all atom coordinates from a given chain of the protein
 def extract_coordinates(chain):
     all_atoms = []
 
+    # gets all residues of chain
     residue = chain.get_residues()
     residues = list(residue)
 
+    # gets all atoms of all residues
     for residue in residues:
         atom = residue.get_atoms()
         atoms = list(atom)
 
+        # appends all atoms of the residue to the list of atoms
         for i in range(0, len(atoms)):
             atom = atoms[i]
             new_atom = Atom(atom.fullname, Vector(atom.coord[0], atom.coord[1], atom.coord[2]))
@@ -96,15 +105,16 @@ def compute_psi(atoms):
                 if atoms[i].name.strip() == "N":
                     second_n = atoms[i]
 
-                    first_vector = get_normal_vector(first_n.vector, ca.vector, c.vector)
-                    second_vector = get_normal_vector(ca.vector, c.vector, second_n.vector)
+                    # builds a normal for the pane describing N, Ca, C
+                    first_vector = get_normal(first_n.vector, ca.vector, c.vector)
+                    # builds a normal for the pane describing Ca, C, N'
+                    second_vector = get_normal(ca.vector, c.vector, second_n.vector)
 
-                    vector_angle(first_vector, second_vector)
-
+                    # computes the angle between both panes
                     angle = vector_angle(first_vector, second_vector)
                     if not clockwise(first_vector, first_n.vector, second_n.vector):
                         angle = -angle
-                    print(angle)
+                    print(angle)  # xxxx fixme
                     all_psi.append(angle)
 
     return all_psi
@@ -122,18 +132,22 @@ def compute_phi(atoms):
                     ca = atoms[i + 1]
                     second_c = atoms[i + 2]
 
-                    first_vector = get_normal_vector(first_c.vector, n.vector, ca.vector)
-                    second_vector = get_normal_vector(n.vector, ca.vector, second_c.vector)
+                    # builds a normal for the pane describing C, N, Ca
+                    first_vector = get_normal(first_c.vector, n.vector, ca.vector)
+                    # builds a normal for the pane describing N, Ca, C
+                    second_vector = get_normal(n.vector, ca.vector, second_c.vector)
 
+                    # computes the angle between both panes
                     angle = vector_angle(first_vector, second_vector)
                     if not clockwise(first_vector, first_c.vector, second_c.vector):
                         angle = -angle
-                    print(angle)
+                    print(angle)  # xxxx fixme
                     all_phi.append(angle)
 
     return all_phi
 
 
+# computes all torsion angles of a given structure
 def compute_all_angles(structure):
     all_phi = []
     all_psi = []
@@ -152,33 +166,42 @@ def compute_all_angles(structure):
             if phi:
                 all_phi.extend(phi)
                 all_psi.extend(psi)
-    print(len(all_phi))
-    print(len(all_psi))
 
-    plot_ramachandran(all_phi[0:500], all_psi[0:500])
-    plot_ramachandran(all_phi[0:1000], all_psi[0:1000])
-    plot_ramachandran(all_phi[0:2000], all_psi[0:2000])
-    plot_ramachandran(all_phi[0:4000], all_psi[0:4000])
-    plot_ramachandran(all_phi[0:8000], all_psi[0:8000])
-    plot_ramachandran(all_phi, all_psi)
+    plt1 = plot_ramachandran(all_phi[0:500], all_psi[0:500])
+    plt2 = plot_ramachandran(all_phi[0:4000], all_psi[0:4000])
+    plt3 = plot_ramachandran(all_phi[0:8000], all_psi[0:8000])
+    plt4 = plot_ramachandran(all_phi, all_psi)
+
+    # output_file = PdfPages('1mbn.pdf')
+    # output_file.savefig(plt1)
+    # output_file.savefig(plt2)
+    # output_file.savefig(plt3)
+    # output_file.savefig(plt4)
+    # output_file.close()
 
 
 # plots list of given phi and psi angles
 def plot_ramachandran(phi, psi):
-    fig, ax = plt.subplots()
-
-    ax.scatter(phi, psi, s=0.5, color="black")
-    ax.set(xlim=(-180, 180),
-           ylim=(-180, 180))
-    plt.hlines(y=0, xmin=-180, xmax=180, colors="grey")
-    plt.vlines(x=0, ymin=-180, ymax=180, colors="grey")
-    plt.xlabel("phi")
-    plt.ylabel("psi")
+    heatmap, xedges, yedges = np.histogram2d(phi, psi, bins = 50)
+    extent = [xedges[0], xedges[-1], yedges[0], yedges[-1]]
+    plt.clf()
+    plt.imshow(heatmap.T, extent=extent, origin='lower')
     plt.show()
 
-    return fig
+    #fig, ax = plt.subplots()
+
+    #ax.scatter(phi, psi, s=0.5, color="black")
+    #ax.set(xlim=(-180, 180),
+     #      ylim=(-180, 180))
+    #plt.hlines(y=0, xmin=-180, xmax=180, colors="grey")
+    #plt.vlines(x=0, ymin=-180, ymax=180, colors="grey")
+    #plt.xlabel("phi")
+    #plt.ylabel("psi")
+
+    return heatmap
 
 
+# checks if the argument for the output file name ends with .pdf
 def pdf_validator(astring):
     if not isinstance(astring, str):
         raise ValueError
@@ -190,14 +213,14 @@ def pdf_validator(astring):
 if __name__ == '__main__':
     # parsing input
     # parser = argparse.ArgumentParser()
-    # parser.add_argument('-i', '--input_file', type=argparse.FileType('r'), nargs='+')
-    # parser.add_argument('-o', '--output_file', type=pdf_validator)
+    # parser.add_argument('-i', '--INPUT_File', type=argparse.FileType('r'), nargs='+')
+    # parser.add_argument('-o', '--OUTPUT_FILE', type=pdf_validator)
     # args = parser.parse_args()
 
-    # for f in args.input_file:
+    # for f in args.INPUT_FILE:
     # for all files!
 
-    file_name = "/Users/friederike/Documents/Universität/Bioinformatik_Master/3_semester/structure_systems/assignments/SSBI/Assignment02/1igt.pdb"
+    file_name = "/Users/friederike/Documents/Universität/Bioinformatik_Master/3_semester/structure_systems/assignments/SSBI/Assignment02/1mbn.pdb"
     structure = parse_file("igt", file_name)
 
     compute_all_angles(structure)
