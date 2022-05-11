@@ -102,7 +102,7 @@ def compute_psi(atoms):
                     vector_angle(first_vector, second_vector)
 
                     angle = vector_angle(first_vector, second_vector)
-                    if clockwise(first_vector, first_n.vector, second_n.vector):
+                    if not clockwise(first_vector, first_n.vector, second_n.vector):
                         angle = -angle
                     print(angle)
                     all_psi.append(angle)
@@ -126,7 +126,7 @@ def compute_phi(atoms):
                     second_vector = get_normal_vector(n.vector, ca.vector, second_c.vector)
 
                     angle = vector_angle(first_vector, second_vector)
-                    if clockwise(first_vector, first_c.vector, second_c.vector):
+                    if not clockwise(first_vector, first_c.vector, second_c.vector):
                         angle = -angle
                     print(angle)
                     all_phi.append(angle)
