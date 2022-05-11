@@ -92,6 +92,7 @@ def extract_coordinates(structure):
                     atom = atoms[i]
                     new_atom = Atom(atom.fullname, Vector(atom.coord[0], atom.coord[1], atom.coord[2]))
                     all_atoms.append(new_atom)
+    print(str(len(all_atoms)))
 
     return all_atoms
 
@@ -149,7 +150,7 @@ def plot_ramachandran (phi, psi):
 
     fig, ax = plt.subplots()
 
-    ax.scatter(phi, psi)
+    ax.scatter(phi, psi, s = 0.5, color = "black")
     ax.set(xlim = (-180,180),
            ylim = (-180,180))
     plt.hlines(y = 0, xmin = -180, xmax = 180, colors= "grey")
@@ -188,9 +189,17 @@ if __name__ == '__main__':
     # print(angle)
     # get_normal_vector(p1, p2, p3)
 
+    model = structure.get_models()
+    models = list(model)
+
+    for model in models:
+        chain = model.get_chains()
+        chains = list(chain)
+    print(str(len(chains)))
+
     all_phi = compute_phi(all_atoms)
     all_psi = compute_psi(all_atoms)
-    plot_ramachandran(all_phi[0:150], all_psi[0:150])
+    plot_ramachandran(all_phi[0:500], all_psi[0:500])
 
     # output file -------------------------
     # p3 = [1,2,3]
