@@ -26,8 +26,15 @@ def vector_angle(v, w):
     c = math.sqrt(w.x ** 2 + w.y ** 2 + w.z ** 2)
     x = a / (b * c)
 
+    if (x > 1):
+        # print(str(x) + "too large value")
+        x = 1
+    if (x < -1):
+        # print(str(x) + "too low value")
+        x = -1
+
     angle_degree = math.degrees(math.acos(x))
-    print(angle_degree)
+    # print(angle_degree)
 
     return angle_degree
 
@@ -46,6 +53,14 @@ def get_normal_vector(u, v, w):
     normal_vector = Vector(a, b, c)
 
     return normal_vector
+
+
+def clockwise (n, s, p):
+    a = (n.x * p.x + n.y * p.y + n.z * p.z) - (s.x * n.x + s.y * n.y + s.z * n.z)
+    b = math.sqrt(n.x ** 2 + n.y ** 2 + n.z ** 2)
+    x = a / b
+
+    return x >= 0
 
 
 def parse_file(id, file):
@@ -80,9 +95,9 @@ def extract_coordinates(structure):
 
     return all_atoms
 
-
+# computes the psi angle by computing the angle of the normal vector from two panes
 def compute_psi(atoms):
-
+    all_psi = []
     for i in range(0, len(atoms)):
         if (atoms[i].name.strip() == "N" and atoms[i + 1].name.strip() == "CA" and atoms[i + 2].name.strip() == "C"):
             first_n = atoms[i]
@@ -97,10 +112,17 @@ def compute_psi(atoms):
 
                     vector_angle(first_vector, second_vector)
 
-    x = 0
+                    angle = vector_angle(first_vector, second_vector)
+                    if clockwise(first_vector, first_n.vector, second_n.vector):
+                        angle = -angle
+                    print(angle)
+                    all_psi.append(angle)
 
+    return all_psi
 
+# computes the phi angle by computing the angle of the normal vector from two panes
 def compute_phi(atoms):
+    all_phi = []
     for i in range(0, len(atoms)):
         if (atoms[i].name.strip() == "C"):
             first_c = atoms[i]
@@ -113,9 +135,16 @@ def compute_phi(atoms):
                     first_vector = get_normal_vector(first_c.vector, n.vector, ca.vector)
                     second_vector = get_normal_vector(n.vector, ca.vector, second_c.vector)
 
-                    vector_angle(first_vector, second_vector)
+                    angle = vector_angle(first_vector, second_vector)
+                    if clockwise(first_vector, first_c.vector, second_c.vector):
+                        angle = -angle
+                    print(angle)
+                    all_phi.append(angle)
+
+    return all_phi
 
 
+# plots list of given phi and psi angles
 def plot_ramachandran (phi, psi):
 
     fig, ax = plt.subplots()
@@ -125,12 +154,9 @@ def plot_ramachandran (phi, psi):
            ylim = (-180,180))
     plt.hlines(y = 0, xmin = -180, xmax = 180, colors= "grey")
     plt.vlines(x = 0, ymin = -180, ymax = 180, colors= "grey")
-    #plt.show()
+    plt.show()
 
     return fig
-
-
-
 
 
 if __name__ == '__main__':
@@ -142,23 +168,31 @@ if __name__ == '__main__':
     # args = parser.parse_args()
 
     # for f in args.input_file:
-      #  structure = parse_file("igt", f.name)  #  xxx fixme
+      #  structure = parse_file("igt", f.name)
        # all_atoms = extract_coordinates(structure)
-
-
 
 
     file_name = "/Users/friederike/Documents/Universität/Bioinformatik_Master/3_semester/structure_systems/assignments/SSBI/Assignment02/1igt.pdb"
     structure = parse_file("igt", file_name)
     all_atoms = extract_coordinates(structure)
 
-    # compute_phi(all_atoms)
-    # compute_psi(all_atoms)
+    # test for angel and vector ----------------
+    n = Vector(4, 8, -19)
+    s = Vector(1, 1, -1)
+    p = Vector(8, -5, 2)
 
-    p1 = Vector(1,2,3)
-    p2 = Vector(4,5,6)
+    # x = clockwise(n, s, p)
+    # print(x)
 
-    # output file ------
+    # angle = vector_angle(p1, p2)
+    # print(angle)
+    # get_normal_vector(p1, p2, p3)
+
+    all_phi = compute_phi(all_atoms)
+    all_psi = compute_psi(all_atoms)
+    plot_ramachandran(all_phi[0:150], all_psi[0:150])
+
+    # output file -------------------------
     # p3 = [1,2,3]
     # p4 = [4,5,6]
 
@@ -170,8 +204,5 @@ if __name__ == '__main__':
     # output_file.savefig(plt2)
     # output_file.close()
 
-    angle = vector_angle(p1, p2)
-    print(angle)
-    # get_normal_vector(p1, p2, p3)
 
 
